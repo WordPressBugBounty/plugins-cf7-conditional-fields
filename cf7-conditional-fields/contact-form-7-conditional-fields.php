@@ -1,49 +1,29 @@
 <?php
 /**
-* Plugin Name: Conditional Fields for Contact Form 7
-* Plugin URI: http://bdwm.be/
-* Description: Adds support for conditional fields to Contact Form 7. This plugin depends on Contact Form 7.
-* Author: Jules Colle
-* Version: 2.5.4
-* Author URI: http://bdwm.be/
-* Text Domain: cf7-conditional-fields
-* License: GPL v2 or later
-* License URI: https://www.gnu.org/licenses/gpl-2.0.html
-* Requires Plugins: contact-form-7
-*/
-
-/**
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * Old main file upgrade routine (Thanks to RavanH for the idea)
+ * 
+ * This is the old plugin main file, it was the main plugin file until version 2.5.4
+ * We'll keep this file for a couple more versions before removing it definitively.
+ * 
  */
 
+defined( 'WPINC' ) || die;
 
-if ( function_exists( 'wpcf7cf_pro_deactivate_free_version_notice' ) ) {
-	add_action( 'admin_notices', 'wpcf7cf_pro_deactivate_free_version_notice' );
-} else {
+$old = 'contact-form-7-conditional-fields.php';
+$new = 'conditional-fields.php';
 
-	function wpcf7cf_pro_deactivate_free_version_notice() {
-		?>
-        <div class="notice notice-error is-dismissible">
-			<p><?php 
-			// translators: 1. <a>, 2. </a> 
-			printf( __( '<strong>Conditional Fields for Contact Form 7</strong> needs to %1$sdeactivate the free plugin%1$s', 'cf7-conditional-fields' ), '<a href="' . wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=cf7-conditional-fields%2Fcontact-form-7-conditional-fields.php&amp;plugin_status=all&amp;paged=1&amp;s=', 'deactivate-plugin_cf7-conditional-fields/contact-form-7-conditional-fields.php' ) . '">', '</a>' ); 
-			?></p>
-        </div>
-		<?php
-	}
+// Change the active plugin settings to make WP start using the new one.
+$active_plugins = (array) get_option( 'active_plugins', array() );
 
-    require_once __DIR__.'/init.php';
+$old_plugin_array = array( basename( __DIR__ ) . '/' . $old );
+$active_plugins   = array_diff( $active_plugins, $old_plugin_array );
 
+$new_plugin = basename( __DIR__ ) . '/' . $new;
+if ( ! in_array( $new_plugin, $active_plugins ) ) {
+    $active_plugins[] = $new_plugin;
+
+    include_once __DIR__ . '/' . $new;
 }
+
+// Update active plugins and never come back here.
+update_option( 'active_plugins', $active_plugins );
